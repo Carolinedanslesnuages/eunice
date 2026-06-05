@@ -128,6 +128,14 @@ test('6.2 tells versioned names, and reads the cache headers of the deployed sit
   const result = await cacheCheck(site, 'https://exemple.fr/mon-site/', uncached);
   assert.equal(result.status, 'non-valide');
   assert.ok(result.details.every((line) => /\.png : ni Cache-Control/.test(line)));
+
+  // In a pull request, a new file is not online yet: not a cache fault.
+  const newInPullRequest = async (address) => new Response(null, String(address).endsWith('.js') ? { status: 404 } : { headers: { etag: '"x"' } });
+  const pending = await cacheCheck(site, 'https://exemple.fr/mon-site/', newInPullRequest);
+  assert.equal(pending.status, 'valide');
+  assert.match(pending.summary, /1 fichier\(s\) pas encore en ligne/);
+  const nothingOnline = await cacheCheck(site, 'https://exemple.fr/', async () => new Response(null, { status: 404 }));
+  assert.equal(nothingOnline.status, 'a-verifier');
 });
 
 test('the task list holds every unmeasured criterion and keeps the ticked boxes', () => {

@@ -56,7 +56,8 @@ ne suffit pas, par exemple des polices chargées depuis un autre site) ou **non 
   maximum, le navigateur ne télécharge que ce que la page utilise.
 - Sans attribut `width`, la taille affichée d'une image dépend du CSS : elle est signalée « à
   vérifier ».
-- Sans `adresse`, le cache ne se juge pas : il dépend de l'hébergeur, pas du code.
+- Sans `adresse`, le cache ne se juge pas : il dépend de l'hébergeur, pas du code. Avec elle,
+  les fichiers qu'une PR ajoute ne sont pas encore en ligne : ils sont signalés, pas comptés.
 
 ## La liste à cocher
 

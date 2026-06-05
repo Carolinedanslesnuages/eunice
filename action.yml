@@ -1,0 +1,58 @@
+name: Eunice — écoconception RGESN
+description: "Mesure sur le site construit les critères du RGESN 2024 qui se mesurent (poids et requêtes par écran, format et dimensions des images, polices, cache) et laisse les autres en liste à cocher dans un commentaire de la PR."
+author: Carolinedanslesnuages
+
+inputs:
+  dossier:
+    description: "Site construit à vérifier (par défaut : « dossier » de eunice.json, sinon dist)."
+    default: ""
+  config:
+    description: "Fichier de configuration."
+    default: "eunice.json"
+  adresse:
+    description: "Adresse du site en ligne, pour lire ses en-têtes de cache (par défaut : « adresse » de eunice.json)."
+    default: ""
+  jeton:
+    description: "Jeton qui écrit le commentaire de la PR (permission pull-requests: write)."
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Vérifier l'écoconception
+      shell: bash
+      env:
+        SITE_FOLDER: ${{ inputs.dossier }}
+        CONFIG: ${{ inputs.config }}
+        ADDRESS: ${{ inputs.adresse }}
+        GH_TOKEN: ${{ inputs.jeton }}
+        PULL_NUMBER: ${{ github.event.pull_request.number }}
+        REPOSITORY: ${{ github.repository }}
+      run: |
+        options=(--config "$CONFIG")
+        [ -n "$SITE_FOLDER" ] && options+=(--dossier "$SITE_FOLDER")
+        [ -n "$ADDRESS" ] && options+=(--adresse "$ADDRESS")
+        previous="$RUNNER_TEMP/eunice-precedent.md"
+        comment_id=""
+        if [ -n "$PULL_NUMBER" ]; then
+          # The comment Eunice wrote earlier on this PR: its ticked boxes are kept.
+          comment_id=$(gh api "repos/$REPOSITORY/issues/$PULL_NUMBER/comments" --paginate \
+            --jq '.[] | select(.body | startswith("<!-- eunice -->")) | .id' | head -n 1)
+          if [ -n "$comment_id" ]; then
+            gh api "repos/$REPOSITORY/issues/comments/$comment_id" --jq .body > "$previous"
+            options+=(--precedent "$previous")
+          fi
+        fi
+        report="$RUNNER_TEMP/eunice.md"
+        status=0
+        node "${{ github.action_path }}/bin/eunice.mjs" "${options[@]}" > "$report" || status=$?
+        cat "$report" >> "$GITHUB_STEP_SUMMARY"
+        cat "$report"
+        if [ -n "$PULL_NUMBER" ] && [ -s "$report" ]; then
+          if [ -n "$comment_id" ]; then
+            gh api -X PATCH "repos/$REPOSITORY/issues/comments/$comment_id" -F body=@"$report" > /dev/null
+          else
+            gh api "repos/$REPOSITORY/issues/$PULL_NUMBER/comments" -F body=@"$report" > /dev/null
+          fi
+        fi
+        exit "$status"

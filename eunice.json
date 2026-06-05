@@ -1,0 +1,7 @@
+{
+  "dossier": "dist",
+  "budgets": { "poids": 500, "requetes": 30 },
+  "adresse": "",
+  "non-applicables": [],
+  "bloquant": true
+}

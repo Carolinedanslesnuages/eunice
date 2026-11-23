@@ -1,6 +1,6 @@
 {
   "name": "@carolinedanslesnuages/eunice",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "L'écoconception vérifiée à chaque pull request : les critères du RGESN 2024 qui se mesurent (poids et requêtes par écran, images, polices, cache) sur le site construit, et les autres en liste à cocher. Sans dépendance.",
   "type": "module",
   "bin": {

@@ -21,3 +21,30 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - run: npm test
+
+  action:
+    name: L'action, sur un site d'essai
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Une page légère passe
+        uses: ./
+        with:
+          config: test/fixtures/eunice.json
+      # Outside a PR only: in a PR, this report would replace the one above in the comment.
+      - name: Un budget dépassé bloque
+        id: over-budget
+        if: github.event_name != 'pull_request'
+        uses: ./
+        continue-on-error: true
+        with:
+          config: test/fixtures/eunice-budget-depasse.json
+      - name: Vérifier que le budget dépassé a bien bloqué
+        if: github.event_name != 'pull_request' && steps.over-budget.outcome != 'failure'
+        shell: bash
+        run: |
+          echo "::error title=Eunice::le budget dépassé aurait dû faire échouer l'action."
+          exit 1

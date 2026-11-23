@@ -1,0 +1,7 @@
+{
+  "dossier": "test/fixtures/site",
+  "budgets": { "poids": 50, "requetes": 5 },
+  "adresse": "",
+  "non-applicables": [],
+  "bloquant": true
+}

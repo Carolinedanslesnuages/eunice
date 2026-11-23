@@ -116,7 +116,7 @@ Le rapport s'affiche aussi dans le résumé de l'exécution.
 ## En ligne de commande
 
 ```sh
-node bin/eunice.mjs --dossier dist --adresse https://mon-site.fr/
+npx @carolinedanslesnuages/eunice --dossier dist --adresse https://mon-site.fr/
 ```
 
 Le rapport Markdown s'écrit sur la sortie standard. `--precedent commentaire.md` reprend les
